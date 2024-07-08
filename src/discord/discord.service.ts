@@ -17,8 +17,8 @@ import { ConfigService } from '@nestjs/config';
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
   private readonly client: Client;
   private readonly token: string;
-  private readonly channelId: string; // Replace with your Discord application client ID
-  private readonly guildId: string; // Optional: if your commands are specific to a guild
+  private readonly channelId: string; // channel in discord that I want to send messages to
+  private readonly guildId: string; // Optional: server in discord where the bot is a member
 
   constructor(private readonly configService: ConfigService) {
     this.client = new Client({
