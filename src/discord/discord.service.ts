@@ -113,8 +113,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     const { commandName } = interaction;
 
     switch (commandName) {
-      case 'ping':
-        await interaction.reply('Pong!');
+      case 'bitch':
+        await interaction.reply('Biotch!');
         break;
       case 'bomb':
         await interaction.reply('BOOM BANG bitches YOUs all be getting Banana Bombed, bitch');
@@ -122,7 +122,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       case 'block':
         await interaction.reply('Party Pooper YOUs just an ole Bomb Tom Blocker');
         break;
-      case 'button':
+      case 'detonate':
         const confirm = new ButtonBuilder()
           .setCustomId('confirm')
           .setLabel('Bomb This Channel?')
