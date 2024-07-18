@@ -1,0 +1,55 @@
+      const clientId = this.client.user.id;
+
+      const commands = [
+        {
+          name: 'challenge',
+          description: 'Challenge another member to a duel.',
+        },
+        {
+          name: 'bombduel',
+          description: 'Engage in a bomb duel with another member.',
+        },
+        {
+          name: 'plantbomb',
+          description: 'Plant a bomb in a specific channel.',
+        },
+        {
+          name: 'defuse',
+          description: 'Defuse a planted bomb in a channel.',
+        },
+        {
+          name: 'settrap',
+          description: 'Set a trap for another member.',
+        },
+        {
+          name: 'explosion',
+          description: 'Trigger an explosion in a channel.',
+        },
+        {
+          name: 'escape',
+          description: 'Escape from an ongoing explosion in a channel.',
+        },
+        {
+          name: 'ambush',
+          description: 'Ambush another member.',
+        },
+        {
+          name: 'defend',
+          description: 'Defend against an ambush.',
+        },
+        {
+          name: 'raid',
+          description: 'Lead a raid on another channel.',
+        },
+      ];
+
+      if (this.guildId) {
+        await rest.put(
+          Routes.applicationGuildCommands(clientId, this.guildId),
+          { body: commands },
+        );
+      } else {
+        await rest.put(Routes.applicationCommands(clientId), {
+          body: commands,
+        });
+      }
