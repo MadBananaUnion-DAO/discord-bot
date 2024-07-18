@@ -1,0 +1,28 @@
+let bombPlanted = false;
+let defuser = null;
+
+async handlePlantBomb(interaction: Interaction) {
+  if (bombPlanted) {
+    await interaction.reply('A bomb is already planted! Wait for someone to defuse it.');
+    return;
+  }
+  
+  bombPlanted = true;
+  await interaction.reply('@everyone A bomb has been planted! The first to type `/defuse` wins!');
+
+  const filter = msg => msg.content.toLowerCase() === '/defuse';
+  const collector = interaction.channel.createMessageCollector({ filter, max: 1, time: 30000 });
+
+  collector.on('collect', msg => {
+    defuser = msg.author;
+    bombPlanted = false;
+    interaction.followUp(`@${defuser.username} successfully defused the bomb and wins 50 BananaBucks!`);
+  });
+
+  collector.on('end', collected => {
+    if (!collected.size) {
+      bombPlanted = false;
+      interaction.followUp('The bomb was not defused in time.');
+    }
+  });
+}
