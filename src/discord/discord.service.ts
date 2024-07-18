@@ -36,7 +36,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     this.client.once('ready', async () => {
-      console.log(`Logged in as ${this.client.user.tag}!`);
+      console.log(`BananaBomber live & lit as ${this.client.user.tag}!`);
 
       // Register slash commands on bot startup
       await this.registerSlashCommands();
@@ -55,7 +55,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   async onModuleDestroy() {
     try {
       await this.client.destroy();
-      console.log('Discord bot logged out gracefully.');
+      console.log('Bomb logged out and blow up gracefully.');
     } catch (error) {
       console.error('Error occurred while logging out Discord bot:', error);
     }
@@ -65,15 +65,15 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     const rest = new REST({ version: '9' }).setToken(this.token);
 
     try {
-      console.log('Started refreshing application (/) commands.');
+      console.log('BananaBombers is Loading Land Mines, & then Your Mine!');
 
       // Replace with your Discord application client ID and guild ID (if applicable)
       const clientId = this.client.user.id;
 
       const commands = [
         {
-          name: 'ping',
-          description: 'Replies with Pong!',
+          name: 'bitch',
+          description: 'Replies with biotch!',
         },
          {
           name: 'bomb',
@@ -84,7 +84,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           description: 'Replies with a block to any bomb!',
         },
         {
-          name: 'button',
+          name: 'detonate',
           description: 'Replies with Pong!',
         },
         // Add more commands as needed
@@ -101,9 +101,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         });
       }
 
-      console.log('Successfully registered application (/) commands.');
+      console.log('Registered BananaBombers (/)commands.');
     } catch (error) {
-      console.error('Error refreshing application (/) commands:', error);
+      console.error('Error in BananaBombers (/)commands:', error);
     }
   }
 
@@ -125,12 +125,12 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       case 'button':
         const confirm = new ButtonBuilder()
           .setCustomId('confirm')
-          .setLabel('Confirm Ban')
+          .setLabel('Bomb This Channel?')
           .setStyle(ButtonStyle.Success);
 
         const cancel = new ButtonBuilder()
           .setCustomId('cancel')
-          .setLabel('Cancel')
+          .setLabel('No Wait!')
           .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -138,7 +138,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         );
 
         const response = await interaction.reply({
-          content: 'Please confirm or cancel the action.',
+          content: 'Decide their Doomed Fate, or geez have some Mercy',
           components: [row],
         });
 
@@ -153,24 +153,24 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           if (confirmation.customId === 'confirm') {
             // await interaction.guild.members.ban(target);
             await confirmation.update({
-              content: `You have just hit the confirm button`,
+              content: `Banana Bomb fuses is LIT; Go Dive behind your Blocks, hurry ya idiot!`,
               components: [],
             });
           } else if (confirmation.customId === 'cancel') {
             await confirmation.update({
-              content: `You have just hit the Cancel buton button`,
+              content: `Yous a Pansy, I mean, phew you so nice, and thats aPEELing`,
               components: [],
             });
           }
         } catch (e) {
           await interaction.editReply({
-            content: 'Confirmation not received within 1 minute, cancelling',
+            content: 'Decision was not made, so the Bomb blows on the commander, not make decisions you cant follow thrr on! What Madness!',
             components: [],
           });
         }
         break;
       default:
-        await interaction.reply('Command not recognized.');
+        await interaction.reply('Thats not a Move (well, not yet)');
         break;
     }
   }
@@ -180,11 +180,11 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   findAll() {
-    return `This action returns all discord`;
+    return `Returns all available Channels eligible to get bombed, or are they? Fuk around and find out, you wont`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} discord`;
+    return `This action returns a possible bombing suspect #${id} discord`;
   }
 
   update(id: number, updateDiscordDto: UpdateDiscordDto) {
@@ -192,7 +192,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} discord`;
+    return `Removed a punishment for #${id} discord`;
   }
 
   sendMessage(content: string) {
