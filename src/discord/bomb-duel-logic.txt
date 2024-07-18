@@ -1,0 +1,10 @@
+async handleBombDuel(interaction: Interaction) {
+  const opponent = interaction.options.getUser('user');
+  if (!opponent) {
+    await interaction.reply('Please mention an opponent for the bomb duel.');
+    return;
+  }
+
+  const winner = Math.random() < 0.5 ? interaction.user : opponent;
+  await interaction.reply(`BOOM! The bomb duel has started! And the winner is... @${winner.username}!`);
+}
