@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const cors: CorsOptions = {
-    origin: ['http://localhost:3000', 'https://www.madbananaunion.com'],
+    origin: ['http://localhost:3000', 'https://bomb.madbananaunion.com'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   };
   app.enableCors(cors);
@@ -18,7 +18,7 @@ async function bootstrap() {
   // Log the URL
   const url = await app.getUrl();
 
-  Logger.log(`Application is running on: ${url}`, 'Bootstrap');
+  Logger.log(`Bananas Go Boom Thru: ${url}`, 'Banana Bombstrapped');
 }
 
 bootstrap();
