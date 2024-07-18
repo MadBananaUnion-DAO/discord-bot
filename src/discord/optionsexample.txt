@@ -1,0 +1,44 @@
+async handleChallenge(interaction: Interaction) {
+  const userToChallenge = interaction.options.getUser('user');
+  const duelType = interaction.options.getString('type'); // 'weapon', 'trivia', 'skill'
+  
+  if (!userToChallenge) {
+    await interaction.reply('Please mention a user to challenge.');
+    return;
+  }
+
+  let duelMessage;
+  switch (duelType) {
+    case 'weapon':
+      duelMessage = `You have challenged @${userToChallenge.username} to a weapon duel! @${userToChallenge.username}, do you accept? (Accept/Decline)`;
+      break;
+    case 'trivia':
+      duelMessage = `You have challenged @${userToChallenge.username} to a trivia duel! @${userToChallenge.username}, do you accept? (Accept/Decline)`;
+      break;
+    case 'skill':
+      duelMessage = `You have challenged @${userToChallenge.username} to a skill duel! @${userToChallenge.username}, do you accept? (Accept/Decline)`;
+      break;
+    default:
+      duelMessage = `You have challenged @${userToChallenge.username} to a duel! @${userToChallenge.username}, do you accept? (Accept/Decline)`;
+  }
+
+  const filter = response => response.user.id === userToChallenge.id && ['accept', 'decline'].includes(response.content.toLowerCase());
+  const challengeMessage = await interaction.reply(duelMessage);
+
+  const collector = challengeMessage.channel.createMessageCollector({ filter, time: 15000 });
+  collector.on('collect', async response => {
+    if (response.content.toLowerCase() === 'accept') {
+      const winner = Math.random() < 0.5 ? interaction.user : userToChallenge;
+      await interaction.followUp(`The duel is on! And the winner is... @${winner.username}!`);
+    } else {
+      await interaction.followUp(`@${userToChallenge.username} declined the challenge.`);
+    }
+    collector.stop();
+  });
+
+  collector.on('end', collected => {
+    if (collected.size === 0) {
+      interaction.followUp(`@${userToChallenge.username} did not respond in time.`);
+    }
+  });
+}
