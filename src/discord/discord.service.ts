@@ -14,6 +14,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  Message,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
 import { getEligibleChannelByName, getAllEligibleChannels } from './eligible-channel-utils';
@@ -184,7 +185,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         const collectorFilter = (i) => i.user.id === interaction.user.id;
 
         try {
-          const confirmation = await message.awaitMessageComponentInteraction({
+          const confirmation = await message.awaitMessageComponent({
             filter: collectorFilter,
             time: 10_000,
           });
@@ -231,4 +232,49 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       .setStyle(ButtonStyle.Danger);
 
     const cancel = new ButtonBuilder()
-      .setCustomId(`
+      .setCustomId(`bomb_no_${channelId}`)
+      .setLabel('Bomb No')
+      .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirm, cancel);
+
+    await interaction.reply({
+      content: `Do you want to bomb the channel ${channelName}?`,
+      components: [row],
+    });
+  }
+
+  create(createDiscordDto: CreateDiscordDto) {
+    return `This action adds a new discord : ${createDiscordDto}`;
+  }
+
+  findAll() {
+    return `Returns all available Channels eligible to get bombed, or are they? Fuk around and find out, you wont`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a possible bombing suspect #${id} discord`;
+  }
+
+  update(id: number, updateDiscordDto: UpdateDiscordDto) {
+    return `This action updates a #${id} discord ${updateDiscordDto}`;
+  }
+
+  remove(id: number) {
+    return `Removed a punishment for #${id} discord`;
+  }
+
+  async sendMessage(content: string) {
+    if (!this.channelId) {
+      console.error('Channel ID is not configured.');
+      return;
+    }
+
+    const channel = this.client.channels.cache.get(this.channelId) as TextChannel;
+    if (channel && channel.isTextBased()) {
+      await channel.send(content);
+    } else {
+      console.error('Channel not found or is not text-based.');
+    }
+  }
+}
