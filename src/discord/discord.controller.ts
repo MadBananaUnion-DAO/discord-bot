@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  ParseIntPipe,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { DiscordService } from './discord.service';
 import { CreateDiscordDto } from './dto/create-discord.dto';
 import { UpdateDiscordDto } from './dto/update-discord.dto';
@@ -21,10 +12,9 @@ export class DiscordController {
     return this.discordService.create(createDiscordDto);
   }
 
-  @Post('send-message')
-  async sendMessage() {
+  @Post('send')
+  sendMessage() {
     this.discordService.sendMessage('Pong!');
-    return { status: 'Message sent' };
   }
 
   @Get()
@@ -33,20 +23,17 @@ export class DiscordController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id') id: number) {
     return this.discordService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDiscordDto: UpdateDiscordDto,
-  ) {
+  @Post(':id')
+  update(@Param('id') id: number, @Body() updateDiscordDto: UpdateDiscordDto) {
     return this.discordService.update(id, updateDiscordDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  @Post('remove/:id')
+  remove(@Param('id') id: number) {
     return this.discordService.remove(id);
   }
 }
