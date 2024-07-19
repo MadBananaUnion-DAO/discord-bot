@@ -6,7 +6,10 @@ import {
   GatewayIntentBits,
   REST,
   Routes,
+  TextChannel,
   Interaction,
+  CommandInteraction,
+  CacheType,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
@@ -42,7 +45,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await this.registerSlashCommands();
     });
 
-    this.client.on('interactionCreate', async (interaction) => {
+    this.client.on('interactionCreate', async (interaction: Interaction) => {
       if (interaction.isButton()) {
         const [prefix, action, channelId] = interaction.customId.split('_');
 
@@ -63,7 +66,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       }
 
       if (interaction.isCommand()) {
-        await this.handleInteraction(interaction);
+        await this.handleInteraction(interaction as CommandInteraction);
       }
     });
 
@@ -136,7 +139,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async handleInteraction(interaction: Interaction) {
+  async handleInteraction(interaction: CommandInteraction) {
     if (!interaction.isCommand()) return;
 
     const { commandName } = interaction;
@@ -207,8 +210,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async handleBombChannel(interaction: Interaction) {
-    const channel = interaction.options.getChannel('channel');
+  async handleBombChannel(interaction: CommandInteraction) {
+    const channel = interaction.options.getChannel('channel', true) as TextChannel;
 
     if (!channel || !channel.isTextBased()) {
       await interaction.reply('Please select a valid text channel.');
@@ -234,7 +237,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       components: [row],
     });
   }
-  
+
   create(createDiscordDto: CreateDiscordDto) {
     return `This action adds a new discord : ${createDiscordDto}`;
   }
@@ -256,7 +259,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   sendMessage(content: string) {
-    const channel = this.client.channels.cache.get(this.channelId);
+    const channel = this.client.channels.cache.get(this.channelId) as TextChannel;
     if (channel && channel.isTextBased()) {
       channel.send(content);
     } else {
