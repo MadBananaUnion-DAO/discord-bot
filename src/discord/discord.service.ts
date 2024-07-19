@@ -9,6 +9,7 @@ import {
   TextChannel,
   Interaction,
   CommandInteraction,
+  CommandInteractionOptionResolver,
   CacheType,
   ActionRowBuilder,
   ButtonBuilder,
@@ -174,21 +175,21 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirm, cancel);
 
-        await interaction.reply({
+        const message = await interaction.reply({
           content: 'Decide their Doomed Fate, or geez have some Mercy',
           components: [row],
+          fetchReply: true,
         });
 
         const collectorFilter = (i) => i.user.id === interaction.user.id;
 
         try {
-          const confirmation = await interaction.awaitMessageComponent({
+          const confirmation = await message.awaitMessageComponentInteraction({
             filter: collectorFilter,
             time: 10_000,
           });
 
           if (confirmation.customId === 'confirm') {
-            // await interaction.guild.members.ban(target);
             await confirmation.update({
               content: `Banana Bomb fuses is LIT; Go Dive behind your Blocks, hurry ya idiot!`,
               components: [],
@@ -216,7 +217,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   async handleBombChannel(interaction: CommandInteraction) {
-    const channelName = interaction.options.getString('channel', true);
+    const channelName = (interaction.options as CommandInteractionOptionResolver).getString('channel', true);
     const channelId = await getEligibleChannelByName(channelName);
 
     if (!channelId) {
@@ -230,45 +231,4 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       .setStyle(ButtonStyle.Danger);
 
     const cancel = new ButtonBuilder()
-      .setCustomId(`bomb_no_${channelId}`)
-      .setLabel('Bomb No')
-      .setStyle(ButtonStyle.Secondary);
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirm, cancel);
-
-    await interaction.reply({
-      content: `Do you want to bomb the channel ${channelName}?`,
-      components: [row],
-    });
-  }
-
-  create(createDiscordDto: CreateDiscordDto) {
-    return `This action adds a new discord : ${createDiscordDto}`;
-  }
-
-  findAll() {
-    return `Returns all available Channels eligible to get bombed, or are they? Fuk around and find out, you wont`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a possible bombing suspect #${id} discord`;
-  }
-
-  update(id: number, updateDiscordDto: UpdateDiscordDto) {
-    return `This action updates a #${id} discord ${updateDiscordDto}`;
-  }
-
-  async sendMessage(content: string) {
-    if (!this.channelId) {
-      console.error('Channel ID is not configured.');
-      return;
-    }
-
-    const channel = this.client.channels.cache.get(this.channelId) as TextChannel;
-    if (channel && channel.isTextBased()) {
-      await channel.send(content);
-    } else {
-      console.error('Channel not found or is not text-based.');
-    }
-  }
-}
+      .setCustomId(`
