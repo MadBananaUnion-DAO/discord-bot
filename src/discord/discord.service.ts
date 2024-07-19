@@ -42,20 +42,20 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await this.registerSlashCommands();
     });
 
-    this.client.on('interactionCreate', async (interaction) => {      
+    this.client.on('interactionCreate', async (interaction) => {
       if (interaction.isButton()) {
-        const [prefix, action, , channelId] = interaction.customId.split('_');
+        const [prefix, action, channelId] = interaction.customId.split('_');
 
         if (prefix === 'bomb' && channelId) {
           if (action === 'yes') {
             const channel = this.client.channels.cache.get(channelId) as TextChannel;
             if (channel) {
               await channel.send('BOOM! The channel has been bombed!');
-              await interaction.update({ content: `The channel ${channel} has been bombed!`, components: [] });
+              await interaction.update({ content: `The channel ${channel.name} has been bombed!`, components: [] });
             } else {
               await interaction.update({ content: 'Channel not found!', components: [] });
             }
-          } else if (interaction.customId.startsWith('bomb_no')) {
+          } else if (action === 'no') {
             await interaction.update({ content: 'The bomb has been cancelled.', components: [] });
           }
         }
@@ -92,11 +92,11 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           name: 'bitch',
           description: 'Replies with biotch!',
         },
-         {
+        {
           name: 'bomb',
           description: 'Replies with a BananaBomb to explode in channel of command',
         },
-         {
+        {
           name: 'block',
           description: 'Replies with a block to any bomb!',
         },
@@ -105,17 +105,17 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           description: 'Replies with Pong!',
         },
         {
-        name: 'bombchannel',
-        description: 'Propose to bomb a specific channel',
-        options: [
-          {
-            name: 'channel',
-            type: 'CHANNEL',
-            description: 'The channel to propose bombing',
-            required: true,
-          },
-        ],
-      },
+          name: 'bombchannel',
+          description: 'Propose to bomb a specific channel',
+          options: [
+            {
+              name: 'channel',
+              type: 7, // 7 corresponds to CHANNEL type in Discord API
+              description: 'The channel to propose bombing',
+              required: true,
+            },
+          ],
+        },
         // Add more commands as needed
       ];
 
@@ -198,11 +198,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           });
         }
         break;
-    case 'bombchannel':
-      await this.handleBombChannel(interaction);
-        break;
-    case 'bombchannel':
-      await this.handleBombChannel(interaction);
+      case 'bombchannel':
+        await this.handleBombChannel(interaction);
         break;
       default:
         await interaction.reply('Thats not a Move (well, not yet)');
@@ -210,34 +207,34 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-async handleBombChannel(interaction: Interaction) {
-  const channel = interaction.options.getChannel('channel');
+  async handleBombChannel(interaction: Interaction) {
+    const channel = interaction.options.getChannel('channel');
 
-  if (!channel || !channel.isTextBased()) {
-    await interaction.reply('Please select a valid text channel.');
-    return;
+    if (!channel || !channel.isTextBased()) {
+      await interaction.reply('Please select a valid text channel.');
+      return;
+    }
+
+    const confirm = new ButtonBuilder()
+      .setCustomId(`bomb_yes_${channel.id}`)
+      .setLabel('Bomb Yes')
+      .setStyle(ButtonStyle.Danger);
+
+    const cancel = new ButtonBuilder()
+      .setCustomId(`bomb_no_${channel.id}`)
+      .setLabel('Bomb No')
+      .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      ...[confirm, cancel],
+    );
+
+    await interaction.reply({
+      content: `Do you want to bomb the channel ${channel}?`,
+      components: [row],
+    });
   }
-
-  const confirm = new ButtonBuilder()
-    .setCustomId(`bomb_yes_${channel.id}`)
-    .setLabel('Bomb Yes')
-    .setStyle(ButtonStyle.Danger);
-
-  const cancel = new ButtonBuilder()
-    .setCustomId(`bomb_no_${channel.id}`)
-    .setLabel('Bomb No')
-    .setStyle(ButtonStyle.Secondary);
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    ...[confirm, cancel],
-  );
-
-  await interaction.reply({
-    content: `Do you want to bomb the channel ${channel}?`,
-    components: [row],
-  });
-}
-
+  
   create(createDiscordDto: CreateDiscordDto) {
     return `This action adds a new discord : ${createDiscordDto}`;
   }
