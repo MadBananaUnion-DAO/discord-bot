@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DiscordService } from './discord.service';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule],
   providers: [DiscordService],
   exports: [DiscordService],
 })
