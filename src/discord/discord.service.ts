@@ -15,12 +15,13 @@ import {
   ButtonStyle,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
+import { getEligibleChannelByName, getAllEligibleChannels } from './eligible-channel-utils';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
   private readonly client: Client;
   private readonly token: string;
-  private readonly channelId: string; // channel in discord that I want to send messages to
+  private readonly channelId: string | undefined; // Optional: get from .env if available
   private readonly guildId: string; // Optional: server in discord where the bot is a member
 
   constructor(private readonly configService: ConfigService) {
@@ -33,7 +34,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       ],
     });
     this.token = this.configService.getOrThrow<string>('MY_TEST_BOT_TOKEN');
-    this.channelId = this.configService.getOrThrow<string>('MY_TEST_CHANNEL_ID');
+    this.channelId = this.configService.get<string>('MY_TEST_CHANNEL_ID');
     this.guildId = this.configService.get<string>('MY_TEST_GUILD_ID'); // Optional, handle it accordingly
   }
 
@@ -113,9 +114,13 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           options: [
             {
               name: 'channel',
-              type: 7, // 7 corresponds to CHANNEL type in Discord API
-              description: 'The channel to propose bombing',
+              type: 3, // 3 corresponds to STRING type in Discord API
+              description: 'The name of the channel to propose bombing',
               required: true,
+              choices: Object.keys(await getAllEligibleChannels()).map((key) => ({
+                name: key,
+                value: key,
+              })),
             },
           ],
         },
@@ -211,20 +216,21 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
   }
 
   async handleBombChannel(interaction: CommandInteraction) {
-    const channel = interaction.options.getChannel('channel', true) as TextChannel;
+    const channelName = interaction.options.getString('channel', true);
+    const channelId = await getEligibleChannelByName(channelName);
 
-    if (!channel || !channel.isTextBased()) {
-      await interaction.reply('Please select a valid text channel.');
+    if (!channelId) {
+      await interaction.reply('Please select a valid channel.');
       return;
     }
 
     const confirm = new ButtonBuilder()
-      .setCustomId(`bomb_yes_${channel.id}`)
+      .setCustomId(`bomb_yes_${channelId}`)
       .setLabel('Bomb Yes')
       .setStyle(ButtonStyle.Danger);
 
     const cancel = new ButtonBuilder()
-      .setCustomId(`bomb_no_${channel.id}`)
+      .setCustomId(`bomb_no_${channelId}`)
       .setLabel('Bomb No')
       .setStyle(ButtonStyle.Secondary);
 
@@ -233,7 +239,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     );
 
     await interaction.reply({
-      content: `Do you want to bomb the channel ${channel}?`,
+      content: `Do you want to bomb the channel ${channelName}?`,
       components: [row],
     });
   }
@@ -258,10 +264,15 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     return `Removed a punishment for #${id} discord`;
   }
 
-  sendMessage(content: string) {
+  async sendMessage(content: string) {
+    if (!this.channelId) {
+      console.error('Channel ID is not configured.');
+      return;
+    }
+
     const channel = this.client.channels.cache.get(this.channelId) as TextChannel;
     if (channel && channel.isTextBased()) {
-      channel.send(content);
+      await channel.send(content);
     } else {
       console.error('Channel not found or is not text-based.');
     }
