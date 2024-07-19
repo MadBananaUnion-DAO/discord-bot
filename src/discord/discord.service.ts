@@ -42,9 +42,27 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       await this.registerSlashCommands();
     });
 
-    this.client.on('interactionCreate', async (interaction) => {
-      if (!interaction.isCommand()) return;
+    this.client.on('interactionCreate', async (interaction) => {      
+      if (interaction.isButton()) {
+        const [action, , channelId] = interaction.customId.split('_');
 
+        if (action === 'bomb') {
+          if (interaction.customId.startsWith('bomb_yes')) {
+            const channel = this.client.channels.cache.get(channelId) as TextChannel;
+            if (channel) {
+              await channel.send('BOOM! The channel has been bombed!');
+              await interaction.update({ content: `The channel ${channel} has been bombed!`, components: [] });
+            } else {
+              await interaction.update({ content: 'Channel not found!', components: [] });
+            }
+          } else if (interaction.customId.startsWith('bomb_no')) {
+            await interaction.update({ content: 'The bomb has been cancelled.', components: [] });
+          }
+        }
+        return;
+      }
+
+      if (!interaction.isCommand()) return;
       // const command = interaction.commandName;
       await this.handleInteraction(interaction);
     });
