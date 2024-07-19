@@ -181,11 +181,45 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           });
         }
         break;
+    case 'bombchannel':
+      await this.handleBombChannel(interaction);
+        break;
+    case 'bombchannel':
+      await this.handleBombChannel(interaction);
+        break;
       default:
         await interaction.reply('Thats not a Move (well, not yet)');
         break;
     }
   }
+
+async handleBombChannel(interaction: Interaction) {
+  const channel = interaction.options.getChannel('channel');
+
+  if (!channel || !channel.isTextBased()) {
+    await interaction.reply('Please select a valid text channel.');
+    return;
+  }
+
+  const confirm = new ButtonBuilder()
+    .setCustomId(`bomb_yes_${channel.id}`)
+    .setLabel('Bomb Yes')
+    .setStyle(ButtonStyle.Danger);
+
+  const cancel = new ButtonBuilder()
+    .setCustomId(`bomb_no_${channel.id}`)
+    .setLabel('Bomb No')
+    .setStyle(ButtonStyle.Secondary);
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    ...[confirm, cancel],
+  );
+
+  await interaction.reply({
+    content: `Do you want to bomb the channel ${channel}?`,
+    components: [row],
+  });
+}
 
   create(createDiscordDto: CreateDiscordDto) {
     return `This action adds a new discord : ${createDiscordDto}`;
