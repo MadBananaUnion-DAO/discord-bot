@@ -30,8 +30,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       ],
     });
     this.token = this.configService.getOrThrow<string>('MY_TEST_BOT_TOKEN');
-    this.channelId =
-      this.configService.getOrThrow<string>('MY_TEST_CHANNEL_ID');
+    this.channelId = this.configService.getOrThrow<string>('MY_TEST_CHANNEL_ID');
+    this.guildId = this.configService.get<string>('MY_TEST_GUILD_ID'); // Optional, handle it accordingly
   }
 
   async onModuleInit() {
@@ -44,10 +44,10 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
     this.client.on('interactionCreate', async (interaction) => {      
       if (interaction.isButton()) {
-        const [action, , channelId] = interaction.customId.split('_');
+        const [prefix, action, , channelId] = interaction.customId.split('_');
 
-        if (action === 'bomb') {
-          if (interaction.customId.startsWith('bomb_yes')) {
+        if (prefix === 'bomb' && channelId) {
+          if (action === 'yes') {
             const channel = this.client.channels.cache.get(channelId) as TextChannel;
             if (channel) {
               await channel.send('BOOM! The channel has been bombed!');
@@ -62,9 +62,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         return;
       }
 
-      if (!interaction.isCommand()) return;
-      // const command = interaction.commandName;
-      await this.handleInteraction(interaction);
+      if (interaction.isCommand()) {
+        await this.handleInteraction(interaction);
+      }
     });
 
     await this.client.login(this.token);
@@ -85,7 +85,6 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
     try {
       console.log('BananaBombers is Loading Land Mines, & then Your Mine!');
 
-      // Replace with your Discord application client ID and guild ID (if applicable)
       const clientId = this.client.user.id;
 
       const commands = [
