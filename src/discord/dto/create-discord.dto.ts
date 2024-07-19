@@ -1,1 +1,4 @@
-export class CreateDiscordDto {}
+export class CreateDiscordDto {
+  readonly name: string;
+  readonly description: string;
+}
