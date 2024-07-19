@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 
-const filePath = path.join(__dirname, 'eligible-channels.json');
+const filePath = path.join('eligible-channels.json');
 
 interface EligibleChannels {
   [key: string]: string;
