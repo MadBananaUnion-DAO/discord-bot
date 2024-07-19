@@ -15,7 +15,7 @@ import {
   ButtonStyle,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
-import { getEligibleChannelByName, getAllEligibleChannels } from 'eligible-channel-utils';
+import { getEligibleChannelByName, getAllEligibleChannels } from './eligible-channel-utils';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
@@ -91,6 +91,8 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
       const clientId = this.client.user.id;
 
+      const eligibleChannels = await getAllEligibleChannels();
+
       const commands = [
         {
           name: 'bitch',
@@ -117,7 +119,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
               type: 3, // 3 corresponds to STRING type in Discord API
               description: 'The name of the channel to propose bombing',
               required: true,
-              choices: Object.keys(await getAllEligibleChannels()).map((key) => ({
+              choices: Object.keys(eligibleChannels).map((key) => ({
                 name: key,
                 value: key,
               })),
@@ -170,11 +172,9 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           .setLabel('No Wait!')
           .setStyle(ButtonStyle.Secondary);
 
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          ...[confirm, cancel],
-        );
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirm, cancel);
 
-        const response = await interaction.reply({
+        await interaction.reply({
           content: 'Decide their Doomed Fate, or geez have some Mercy',
           components: [row],
         });
@@ -182,7 +182,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
         const collectorFilter = (i) => i.user.id === interaction.user.id;
 
         try {
-          const confirmation = await response.awaitMessageComponent({
+          const confirmation = await interaction.awaitMessageComponent({
             filter: collectorFilter,
             time: 10_000,
           });
@@ -234,9 +234,7 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
       .setLabel('Bomb No')
       .setStyle(ButtonStyle.Secondary);
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      ...[confirm, cancel],
-    );
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(confirm, cancel);
 
     await interaction.reply({
       content: `Do you want to bomb the channel ${channelName}?`,
@@ -258,10 +256,6 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
 
   update(id: number, updateDiscordDto: UpdateDiscordDto) {
     return `This action updates a #${id} discord ${updateDiscordDto}`;
-  }
-
-  remove(id: number) {
-    return `Removed a punishment for #${id} discord`;
   }
 
   async sendMessage(content: string) {
