@@ -15,7 +15,7 @@ import {
   ButtonStyle,
 } from 'discord.js';
 import { ConfigService } from '@nestjs/config';
-import { getEligibleChannelByName, getAllEligibleChannels } from './eligible-channel-utils';
+import { getEligibleChannelByName, getAllEligibleChannels } from 'eligible-channel-utils';
 
 @Injectable()
 export class DiscordService implements OnModuleInit, OnModuleDestroy {
