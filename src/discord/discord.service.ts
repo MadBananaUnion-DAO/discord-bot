@@ -87,6 +87,18 @@ export class DiscordService implements OnModuleInit, OnModuleDestroy {
           name: 'detonate',
           description: 'Replies with Pong!',
         },
+        {
+        name: 'bombchannel',
+        description: 'Propose to bomb a specific channel',
+        options: [
+          {
+            name: 'channel',
+            type: 'CHANNEL',
+            description: 'The channel to propose bombing',
+            required: true,
+          },
+        ],
+      },
         // Add more commands as needed
       ];
 
